@@ -20,6 +20,9 @@ public class Calculator {
         }
     }
 
+    /**
+     * Основной метод работы калькулятора без использования файла.
+     */
     public void run() {
         try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
             while(true) {
@@ -39,6 +42,10 @@ public class Calculator {
         }
     }
 
+    /**
+     * Методы работы калькулятора. Вызывается, когда в аргументах командной строки указан путь к файлу.
+     * @param filepath
+     */
     public void runFromFile(String filepath) {
         int line = 0;
         try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filepath)));
@@ -60,6 +67,12 @@ public class Calculator {
         }
     }
 
+    /**
+     * Обработка одного выражения.
+     * @param br - ридер для считывания строки выражения.
+     * @param bw - зписывает в файл. Если файл не задействован, оставить null.
+     * @throws IOException
+     */
     private void processExpression(BufferedReader br, BufferedWriter bw) throws IOException {
         String expression = br.readLine();
         parseExpression(expression);
@@ -87,6 +100,12 @@ public class Calculator {
         }
     }
 
+    /**
+     * Парсит строковое выражение переводит дроби в формат SimpleFraction и определяет операцию.
+     * Проверяет входные данные на корректность.
+     * @param expr
+     * @throws InvalidExpressionException
+     */
     private void parseExpression(String expr) throws InvalidExpressionException {
         expr = expr.replaceAll(" ", "");
         //Разделяем все выражения на группы чисел (от знака до знака)
@@ -123,9 +142,9 @@ public class Calculator {
             b = new SimpleFraction(bn, bd);
         } catch (NumberFormatException nfe) {
             throw new InvalidExpressionException("Дроби содержат недопустимые символы");
-//        } catch (Exception e) {
-//            throw new InvalidExpressionException("Выражение содержит недопустимые символы или недоустимые" +
-//                    " математические операции.");
+        } catch (IllegalStateException e) {
+            throw new InvalidExpressionException("Выражение содержит недопустимые символы или недоустимые" +
+                    " математические операции.");
         }
     }
 
