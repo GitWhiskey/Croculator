@@ -109,40 +109,36 @@ public class Calculator {
     private void parseExpression(String expr) throws InvalidExpressionException {
         expr = expr.replaceAll(" ", "");
         //Разделяем все выражения на группы чисел (от знака до знака)
-        Pattern p = Pattern.compile("/|\\+|-|\\*");
+        Pattern p = Pattern.compile("\\d+");
         Matcher m = p.matcher(expr);
 
         try {
             m.find();
-            if (!m.group().equals("/")) throw new InvalidExpressionException("Ошибка в первом операнде.");
             //"a" numerator
-            int an = Integer.parseInt(expr.substring(0, m.start()).trim());
-            //Начало знаменателя - конец знака дроби
-            int adStart = m.end();
-
+            int an = Integer.parseInt(m.group());
+            if(expr.charAt(m.end()) != '/') throw new InvalidExpressionException("Ошибка в первом операнде.");
             m.find();
-            operation = m.group();
             //"a" denominator
-            int ad = Integer.parseInt(expr.substring(adStart, m.start()));
+            int ad = Integer.parseInt(m.group());
             if(ad == 0) throw new InvalidExpressionException("Первая дробь содержит ноль в знаменателе.");
-            int bnStart = m.end();
-
+            operation = String.valueOf(expr.charAt(m.end()));
+            if(!operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/")) {
+                throw new InvalidExpressionException("Выражение содержит символ операции.");
+            }
             m.find();
-            if (!m.group().equals("/")) throw new InvalidExpressionException("Ошибка во втором операнде.");
             //"b" numerator
-            int bn = Integer.parseInt(expr.substring(bnStart, m.start()));
-            int bdStart = m.end();
-
+            int bn = Integer.parseInt(m.group());
+            if(expr.charAt(m.end()) != '/') throw new InvalidExpressionException("Ошибка во втором операнде.");
             m.find();
             //"b" denominator
-            int bd = Integer.parseInt(expr.substring(bdStart));
+            int bd = Integer.parseInt(m.group());
             if(bd == 0) throw new InvalidExpressionException("Вторая дробь содержит ноль в знаменателе.");
 
             a = new SimpleFraction(an, ad);
             b = new SimpleFraction(bn, bd);
         } catch (NumberFormatException nfe) {
             throw new InvalidExpressionException("Дроби содержат недопустимые символы");
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | StringIndexOutOfBoundsException e) {
             throw new InvalidExpressionException("Выражение содержит недопустимые символы или недоустимые" +
                     " математические операции.");
         }
