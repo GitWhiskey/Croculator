@@ -17,7 +17,8 @@ public class SimpleFraction {
      * @param a - слагаемое 1
      * @param b - слагаемое 2
      * @return - результат сложения двух простых дробей a+b.
-     * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе.
+     * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе,
+     *                              или произошло переполнение.
      */
     public static SimpleFraction add(SimpleFraction a, SimpleFraction b) throws ArithmeticException {
         checkFractions(a, b, false);
@@ -26,8 +27,14 @@ public class SimpleFraction {
             result = new SimpleFraction(a.numerator + b.numerator, a.denominator);
             return result;
         } else {
-            int resNumerator = a.numerator*b.denominator + b.numerator*a.denominator;
-            result = new SimpleFraction(resNumerator, a.denominator*b.denominator);
+            try {
+                int resNumerator = Math.addExact(Math.multiplyExact(a.numerator, b.denominator),
+                        Math.multiplyExact(b.numerator, a.denominator));
+                result = new SimpleFraction(resNumerator, Math.multiplyExact(a.denominator, b.denominator));
+            } catch (ArithmeticException e) {
+                throw new ArithmeticException("Числитель или знаменатель слишком велик. Пожалуйста введите другие" +
+                        "значения.");
+            }
             return result;
         }
     }
@@ -37,7 +44,8 @@ public class SimpleFraction {
      * @param a - уменьшаемое
      * @param b - вычитаемое
      * @return - разность a-b.
-     * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе.
+     * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе,
+     *                               или произошло переполнение.
      */
     public static SimpleFraction subtract(SimpleFraction a, SimpleFraction b) throws ArithmeticException {
         checkFractions(a, b, false);
@@ -46,8 +54,14 @@ public class SimpleFraction {
             result = new SimpleFraction(a.numerator - b.numerator, a.denominator);
             return result;
         } else {
-            int resNumerator = a.numerator*b.denominator - b.numerator*a.denominator;
-            result = new SimpleFraction(resNumerator, a.denominator*b.denominator);
+            try {
+                int resNumerator = Math.subtractExact(Math.multiplyExact(a.numerator, b.denominator),
+                        Math.multiplyExact(b.numerator, a.denominator));
+                result = new SimpleFraction(resNumerator, Math.multiplyExact(a.denominator, b.denominator));
+            } catch (ArithmeticException e) {
+                throw new ArithmeticException("Числитель или знаменатель слишком велик. Пожалуйста введите другие" +
+                        "значения.");
+            }
             return result;
         }
     }
@@ -57,11 +71,20 @@ public class SimpleFraction {
      * @param a - множитель 1
      * @param b - множитель 2
      * @return - результам умножения a*b.
-     * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе.
+     * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе,
+     *                               или произошло переполнение.
      */
     public static SimpleFraction multiply(SimpleFraction a, SimpleFraction b) throws ArithmeticException {
         checkFractions(a, b, false);
-        return new SimpleFraction(a.numerator*b.numerator, a.denominator*b.denominator);
+        SimpleFraction result;
+        try {
+            result = new SimpleFraction(Math.multiplyExact(a.numerator, b.numerator),
+                    Math.multiplyExact(a.denominator, b.denominator));
+        } catch (ArithmeticException e) {
+            throw new ArithmeticException("Числитель или знаменатель слишком велик. Пожалуйста введите другие" +
+                    "значения.");
+        }
+        return result;
     }
 
     /**
@@ -70,15 +93,23 @@ public class SimpleFraction {
      * @param b - делитель
      * @return - результат деления a/b.
      * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе,
-     *                                  или если делитель b сожержит ноль в числителе.
+     *                                  или если делитель b сожержит ноль в числителе, или произошло переполнение.
      */
     public static SimpleFraction divide(SimpleFraction a, SimpleFraction b) throws ArithmeticException {
         checkFractions(a, b, true);
-        return new SimpleFraction(a.numerator*b.denominator, a.denominator*b.numerator);
+        SimpleFraction result;
+        try {
+            result = new SimpleFraction(Math.multiplyExact(a.numerator, b.denominator),
+                    Math.multiplyExact(a.denominator, b.numerator));
+        } catch (ArithmeticException e) {
+            throw new ArithmeticException("Числитель или знаменатель слишком велик. Пожалуйста введите другие" +
+                    "значения.");
+        }
+        return result;
     }
 
     /**
-     * Проверка дробей на корректность. В частности проверяется содержание нулей в знаменателях и в числителе при
+     * Проверка дробей на содержание нулей в знаменателях и в числителе при
      * делении.
      * @param a - первый операнд
      * @param b - второй операнд

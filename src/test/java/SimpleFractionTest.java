@@ -3,12 +3,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SimpleFractionTest {
-    SimpleFraction a;
-    SimpleFraction b;
-    SimpleFraction c;
-    SimpleFraction d;
-    SimpleFraction e;
-    SimpleFraction f;
+    private SimpleFraction a;
+    private SimpleFraction b;
+    private SimpleFraction c;
+    private SimpleFraction d;
+    private SimpleFraction e;
+    private SimpleFraction f;
+    private SimpleFraction big1;
+    private SimpleFraction big2;
 
     @Before
     public void preparation() {
@@ -18,12 +20,14 @@ public class SimpleFractionTest {
         d = new SimpleFraction(1,6);
         e = new SimpleFraction(0,35);
         f = new SimpleFraction(456,0);
+        big1 = new SimpleFraction(12342345, 345455674);
+        big2 = new SimpleFraction(1223342345, 1121245675);
     }
 
     @Test
     public void addTest() {
         Assert.assertEquals(new SimpleFraction(18,24), SimpleFraction.add(a,b));
-        Assert.assertEquals(new SimpleFraction(2,6), SimpleFraction.add(c,d));
+        Assert.assertEquals(new SimpleFraction(18,24), SimpleFraction.add(a,b));
     }
 
     @Test
@@ -46,33 +50,53 @@ public class SimpleFractionTest {
         Assert.assertEquals(new SimpleFraction(0,35), SimpleFraction.divide(e,b));
     }
 
+    @Test(expected = ArithmeticException.class)
+    public void addOverflowTest() {
+        SimpleFraction.add(big1,big2);
+    }
+
     @Test (expected = ArithmeticException.class)
-    public void badAddTest1() {
+    public void addZeroTest1() {
         SimpleFraction.add(f,e);
     }
 
     @Test (expected = ArithmeticException.class)
-    public void badAddTest2() {
+    public void addZeroTest2() {
         SimpleFraction.add(f,f);
     }
 
+    @Test(expected = ArithmeticException.class)
+    public void subtractOverflowTest() {
+        SimpleFraction.add(big1,big2);
+    }
+
     @Test (expected = ArithmeticException.class)
-    public void badSubtractTest() {
+    public void subtractZeroTest() {
         SimpleFraction.subtract(f,e);
     }
 
-    @Test (expected = ArithmeticException.class)
-    public void badMultiplyTest() {
-        SimpleFraction.multiply(f,e);
+    @Test(expected = ArithmeticException.class)
+    public void multiplyOverflowTest() {
+        SimpleFraction.add(big1,big2);
     }
 
     @Test (expected = ArithmeticException.class)
-    public void badDivideTest1() {
+    public void multiplyZeroTest() {
+        SimpleFraction.multiply(f,e);
+    }
+
+    @Test(expected = ArithmeticException.class)
+    public void divideOverflowTest() {
+        SimpleFraction.add(big1,big2);
+    }
+
+    @Test (expected = ArithmeticException.class)
+    public void divideZeroTest1() {
         SimpleFraction.divide(d,e);
     }
 
     @Test (expected = ArithmeticException.class)
-    public void badDivideTest2() {
+    public void divideZeroTest2() {
         SimpleFraction.divide(d,f);
     }
 }
