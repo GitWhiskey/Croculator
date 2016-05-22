@@ -33,7 +33,7 @@ public class SimpleFraction {
                 result = new SimpleFraction(resNumerator, Math.multiplyExact(a.denominator, b.denominator));
             } catch (ArithmeticException e) {
                 throw new ArithmeticException("Числитель или знаменатель слишком велик. Пожалуйста введите другие" +
-                        "значения.");
+                        " значения.");
             }
             return result;
         }
@@ -60,7 +60,7 @@ public class SimpleFraction {
                 result = new SimpleFraction(resNumerator, Math.multiplyExact(a.denominator, b.denominator));
             } catch (ArithmeticException e) {
                 throw new ArithmeticException("Числитель или знаменатель слишком велик. Пожалуйста введите другие" +
-                        "значения.");
+                        " значения.");
             }
             return result;
         }
@@ -82,7 +82,7 @@ public class SimpleFraction {
                     Math.multiplyExact(a.denominator, b.denominator));
         } catch (ArithmeticException e) {
             throw new ArithmeticException("Числитель или знаменатель слишком велик. Пожалуйста введите другие" +
-                    "значения.");
+                    " значения.");
         }
         return result;
     }
@@ -103,7 +103,7 @@ public class SimpleFraction {
                     Math.multiplyExact(a.denominator, b.numerator));
         } catch (ArithmeticException e) {
             throw new ArithmeticException("Числитель или знаменатель слишком велик. Пожалуйста введите другие" +
-                    "значения.");
+                    " значения.");
         }
         return result;
     }
