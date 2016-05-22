@@ -1,12 +1,8 @@
 import java.io.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Calculator {
 
-    private SimpleFraction a;
-    private SimpleFraction b;
-    private String operation;
+    private ExpressionParser parser = new ExpressionParser();
     private final static String OUTPUT_FILE_PATH = "results.xml";
 
     public static void main(String[] args) {
@@ -31,7 +27,7 @@ public class Calculator {
                     if(br.readLine().equals("n")) {
                         break;
                     }
-                } catch (InvalidExpressionException e) {
+                } catch (InvalidExpressionException | ArithmeticException e) {
                     System.out.println(e.getMessage());
                 }
             }
@@ -42,7 +38,7 @@ public class Calculator {
 
     /**
      * Методы работы калькулятора. Вызывается, когда в аргументах командной строки указан путь к файлу.
-     * @param filepath
+     * @param filepath - путь к файлу
      */
     public void runFromFile(String filepath) {
         int line = 0;
@@ -52,7 +48,7 @@ public class Calculator {
                 try {
                     line++;
                     processExpression(br, bw);
-                } catch (InvalidExpressionException e) {
+                } catch (InvalidExpressionException | ArithmeticException e) {
                     String output = "Выражение "+line+": "+e.getMessage();
                     bw.write(output);
                     bw.newLine();
@@ -71,11 +67,14 @@ public class Calculator {
      * @param bw - зписывает в файл. Если файл не задействован, оставить null.
      * @throws IOException
      */
-    private void processExpression(BufferedReader br, BufferedWriter bw) throws IOException {
+    private void processExpression(BufferedReader br, BufferedWriter bw) throws IOException, ArithmeticException,
+                                                                                            InvalidExpressionException {
         String expression = br.readLine();
-        parseExpression(expression);
+        parser.parse(expression);
+        SimpleFraction a = parser.getA();
+        SimpleFraction b = parser.getB();
         SimpleFraction answer = null;
-        switch (operation) {
+        switch (parser.getOperation()) {
             case "+":
                 answer = SimpleFraction.add(a, b);
                 break;
@@ -95,64 +94,6 @@ public class Calculator {
                 bw.newLine();
             }
             System.out.println(expression + " = " + answer.toString());
-        }
-    }
-
-    /**
-     * Парсит строковое выражение переводит дроби в формат SimpleFraction и определяет операцию.
-     * Проверяет входные данные на корректность.
-     * @param expr
-     * @throws InvalidExpressionException
-     */
-    private void parseExpression(String expr) throws InvalidExpressionException {
-        expr = expr.replaceAll(" ", "");
-        //Разделяем все выражения на группы чисел (от знака до знака)
-        Pattern p = Pattern.compile("\\d+");
-        Matcher m = p.matcher(expr);
-
-        try {
-            m.find();
-            //"a" numerator
-            int an = Integer.parseInt(m.group());
-            if(expr.charAt(m.end()) != '/') throw new InvalidExpressionException("Ошибка в первом операнде.");
-            m.find();
-            //"a" denominator
-            int ad = Integer.parseInt(m.group());
-            if(ad == 0) throw new InvalidExpressionException("Первая дробь содержит ноль в знаменателе.");
-            operation = String.valueOf(expr.charAt(m.end()));
-            if(!operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/")) {
-                throw new InvalidExpressionException("Выражение содержит символ операции.");
-            }
-            m.find();
-            //"b" numerator
-            int bn = Integer.parseInt(m.group());
-            if(expr.charAt(m.end()) != '/') throw new InvalidExpressionException("Ошибка во втором операнде.");
-            m.find();
-            //"b" denominator
-            int bd = Integer.parseInt(m.group());
-            if(bd == 0) throw new InvalidExpressionException("Вторая дробь содержит ноль в знаменателе.");
-
-            a = new SimpleFraction(an, ad);
-            b = new SimpleFraction(bn, bd);
-        } catch (NumberFormatException nfe) {
-            throw new InvalidExpressionException("Дроби содержат недопустимые символы");
-        } catch (IllegalStateException | StringIndexOutOfBoundsException e) {
-            throw new InvalidExpressionException("Выражение содержит недопустимые символы или недоустимые" +
-                    " математические операции.");
-        }
-    }
-
-    private class InvalidExpressionException extends RuntimeException {
-        private String message;
-
-        public InvalidExpressionException(String message) {
-            super();
-            this.message = message;
-        }
-
-        @Override
-        public String getMessage() {
-            return message;
         }
     }
 
