@@ -1,5 +1,3 @@
-package main;
-
 public class SimpleFraction {
 
     private int numerator;
