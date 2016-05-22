@@ -1,3 +1,5 @@
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.*;
 
 public class Calculator {
@@ -32,7 +34,7 @@ public class Calculator {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Возникла ошибка при чтении с консоли.");
         }
     }
 
@@ -42,32 +44,32 @@ public class Calculator {
      */
     public void runFromFile(String filepath) {
         int line = 0;
-        try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filepath)));
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(OUTPUT_FILE_PATH)))) {
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filepath)))) {
+            ExpressionWriter writer = new ExpressionWriter();
+            writer.createDocument();
             while(br.ready()) {
                 try {
                     line++;
-                    processExpression(br, bw);
+                    processExpression(br, writer);
                 } catch (InvalidExpressionException | ArithmeticException e) {
-                    String output = "Выражение "+line+": "+e.getMessage();
-                    bw.write(output);
-                    bw.newLine();
-                    System.out.println(output);
+                    writer.addException(e, line);
                 }
             }
-            System.out.println("Результат был записан в файл.");
+            writer.writeXML(OUTPUT_FILE_PATH);
         } catch (IOException e) {
             System.out.println("Путь к файлу указан неверно, или такого файла не существует.");
+        } catch (ParserConfigurationException | TransformerException e) {
+            System.out.println("Возникла ошибка при создании XML файла.");
         }
     }
 
     /**
      * Обработка одного выражения.
      * @param br - ридер для считывания строки выражения.
-     * @param bw - зписывает в файл. Если файл не задействован, оставить null.
+     * @param ew - зписывает в файл. Если файл не задействован, оставить null.
      * @throws IOException
      */
-    private void processExpression(BufferedReader br, BufferedWriter bw) throws IOException, ArithmeticException,
+    private void processExpression(BufferedReader br, ExpressionWriter ew) throws IOException, ArithmeticException,
                                                                                             InvalidExpressionException {
         String expression = br.readLine();
         parser.parse(expression);
@@ -89,12 +91,11 @@ public class Calculator {
                 break;
         }
         if(answer != null) {
-            if(bw != null) {
-                bw.write(answer.toString());
-                bw.newLine();
+            if(ew != null) {
+                ew.addResult(answer.toString());
+            } else {
+                System.out.println(expression + " = " + answer.toString());
             }
-            System.out.println(expression + " = " + answer.toString());
         }
     }
-
 }
