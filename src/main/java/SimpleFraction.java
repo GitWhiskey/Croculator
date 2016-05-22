@@ -17,8 +17,10 @@ public class SimpleFraction {
      * @param a - слагаемое 1
      * @param b - слагаемое 2
      * @return - результат сложения двух простых дробей a+b.
+     * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе.
      */
-    public static SimpleFraction add(SimpleFraction a, SimpleFraction b) {
+    public static SimpleFraction add(SimpleFraction a, SimpleFraction b) throws ArithmeticException {
+        checkFractions(a, b, false);
         SimpleFraction result;
         if(a.denominator == b.denominator) {
             result = new SimpleFraction(a.numerator + b.numerator, a.denominator);
@@ -35,8 +37,10 @@ public class SimpleFraction {
      * @param a - уменьшаемое
      * @param b - вычитаемое
      * @return - разность a-b.
+     * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе.
      */
-    public static SimpleFraction subtract(SimpleFraction a, SimpleFraction b) {
+    public static SimpleFraction subtract(SimpleFraction a, SimpleFraction b) throws ArithmeticException {
+        checkFractions(a, b, false);
         SimpleFraction result;
         if(a.denominator == b.denominator) {
             result = new SimpleFraction(a.numerator - b.numerator, a.denominator);
@@ -53,8 +57,10 @@ public class SimpleFraction {
      * @param a - множитель 1
      * @param b - множитель 2
      * @return - результам умножения a*b.
+     * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе.
      */
-    public static SimpleFraction multiply(SimpleFraction a, SimpleFraction b) {
+    public static SimpleFraction multiply(SimpleFraction a, SimpleFraction b) throws ArithmeticException {
+        checkFractions(a, b, false);
         return new SimpleFraction(a.numerator*b.numerator, a.denominator*b.denominator);
     }
 
@@ -63,13 +69,32 @@ public class SimpleFraction {
      * @param a - делимое
      * @param b - делитель
      * @return - результат деления a/b.
-     * @throws ArithmeticException - исключение выбрасывается делитель b сожержит ноль в числителе.
+     * @throws ArithmeticException - исключение выбрасывается, если один из  операндов содержит 0 в знаменателе,
+     *                                  или если делитель b сожержит ноль в числителе.
      */
     public static SimpleFraction divide(SimpleFraction a, SimpleFraction b) throws ArithmeticException {
-        if(b.numerator == 0) {
+        checkFractions(a, b, true);
+        return new SimpleFraction(a.numerator*b.denominator, a.denominator*b.numerator);
+    }
+
+    /**
+     * Проверка дробей на корректность. В частности проверяется содержание нулей в знаменателях и в числителе при
+     * делении.
+     * @param a - первый операнд
+     * @param b - второй операнд
+     * @param divisionOperation - true - если проверка выполняется при операции деления,
+     *                          false - если при любой другой операции.
+     */
+    private static void checkFractions(SimpleFraction a, SimpleFraction b, boolean divisionOperation) {
+        if(a.denominator == 0) {
+            throw new ArithmeticException("Первая дробь содержит ноль в знаменателе.");
+        }
+        if(b.denominator == 0) {
+            throw new ArithmeticException("Вторая дробь содержит ноль в знаменателе.");
+        }
+        if(divisionOperation && b.numerator == 0) {
             throw new ArithmeticException("Недопустимая операция. Деление на ноль.");
         }
-        return new SimpleFraction(a.numerator*b.denominator, a.denominator*b.numerator);
     }
 
     @Override

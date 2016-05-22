@@ -26,7 +26,6 @@ public class ExpressionParser {
             m.find();
             //"a" denominator
             int ad = Integer.parseInt(m.group());
-            if(ad == 0) throw new InvalidExpressionException("Первая дробь содержит ноль в знаменателе.");
             operation = String.valueOf(expr.charAt(m.end()));
             if(!operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/")) {
                 throw new InvalidExpressionException("Выражение содержит недопустимый символ операции.");
@@ -38,7 +37,6 @@ public class ExpressionParser {
             m.find();
             //"b" denominator
             int bd = Integer.parseInt(m.group());
-            if(bd == 0) throw new InvalidExpressionException("Вторая дробь содержит ноль в знаменателе.");
 
             a = new SimpleFraction(an, ad);
             b = new SimpleFraction(bn, bd);
